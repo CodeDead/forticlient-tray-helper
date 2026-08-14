@@ -1,0 +1,6 @@
+dist
+.yarn
+node_modules
+.idea
+README.md
+src-tauri

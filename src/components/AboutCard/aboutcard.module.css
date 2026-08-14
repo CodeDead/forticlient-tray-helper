@@ -1,0 +1,18 @@
+.card {
+  background-color: var(--mantine-color-body);
+}
+
+.banner {
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+}
+
+.avatar {
+  border: rem(2px) solid var(--mantine-color-body);
+  cursor: pointer;
+}
+
+.name {
+  cursor: pointer;
+}

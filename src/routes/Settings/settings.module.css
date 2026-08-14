@@ -1,0 +1,11 @@
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  gap: var(--mantine-spacing-md);
+}
+
+.button {
+  width: 100%;
+}
