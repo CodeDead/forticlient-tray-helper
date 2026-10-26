@@ -24,6 +24,7 @@ FortiClient installs a systemd service and a tray launcher that are permanently 
   * The FortiClient GUI is launched in a separate process, so it does not block the application from responding to other actions and will close automatically when FortiClient is connected.
 * Enable or disable the `forticlient.service` systemd unit (controls whether FortiClient starts at boot)
 * Enable or disable the FortiClient tray launcher autostart entry
+* Optionally start FortiClient automatically when this application starts (disabled by default)
 * Live in the system tray for quick access
   * The tray menu lets you start/stop FortiClient, show the window, or quit (quitting also stops FortiClient unless disabled in the settings)
   * This app does not start or run automatically, meaning you are in full control of when FortiClient is active.

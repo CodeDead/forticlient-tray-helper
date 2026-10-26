@@ -9,6 +9,7 @@ export const initialStatus = {
   tray_launcher_running: false,
   tray_autostart_enabled: false,
   quit_forticlient_on_exit: false,
+  auto_start_forticlient: false,
 };
 
 export const fetchStatus = () => invoke('forticlient_status');
@@ -31,6 +32,9 @@ export const removeFortitrayLauncher = () =>
 
 export const saveQuitFortiClientOnExit = (quit) =>
   invoke('set_quit_forticlient_on_exit', { value: quit });
+
+export const saveAutoStartFortiClient = (autoStart) =>
+  invoke('set_auto_start_forticlient', { value: autoStart });
 
 export const onStatusChanged = (callback) => listen('status-changed', callback);
 

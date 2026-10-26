@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Checkbox, Container, Grid } from '@mantine/core';
+import { Button, Checkbox, Container, Grid, Stack } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import classes from './settings.module.css';
 import useForticlientContext from '../../context/ForticlientContext/useForticlientContext.js';
@@ -9,6 +9,7 @@ import {
   enableForticlientService,
   enableFortitrayLauncher,
   removeFortitrayLauncher,
+  saveAutoStartFortiClient,
   saveQuitFortiClientOnExit,
 } from '../../lib/forticlient.js';
 
@@ -28,12 +29,12 @@ const Settings = () => {
   };
 
   /**
-   * Change quit FortiClient on exit setting
-   * @param event The checked state of the checkbox
+   * Persist a setting and refresh the status
+   * @param save The function that persists the setting
+   * @param value The new value of the setting
    */
-  const changeQuitFortiClientOnExit = (event) => {
-    const quit = event.currentTarget.checked;
-    saveQuitFortiClientOnExit(quit)
+  const saveSetting = (save, value) => {
+    save(value)
       .then(() => refreshStatus())
       .catch((err) =>
         notifications.show({
@@ -44,16 +45,40 @@ const Settings = () => {
       );
   };
 
+  /**
+   * Change quit FortiClient on exit setting
+   * @param event The checked state of the checkbox
+   */
+  const changeQuitFortiClientOnExit = (event) => {
+    saveSetting(saveQuitFortiClientOnExit, event.currentTarget.checked);
+  };
+
+  /**
+   * Change auto start FortiClient setting
+   * @param event The checked state of the checkbox
+   */
+  const changeAutoStartFortiClient = (event) => {
+    saveSetting(saveAutoStartFortiClient, event.currentTarget.checked);
+  };
+
   return (
     <Container>
       <Grid>
         <Grid.Col span={12}>
-          <Checkbox
-            checked={status.quit_forticlient_on_exit}
-            disabled={busy}
-            onChange={changeQuitFortiClientOnExit}
-            label="Stop FortiClient when quitting this application"
-          />
+          <Stack gap="sm">
+            <Checkbox
+              checked={status.quit_forticlient_on_exit}
+              disabled={busy}
+              onChange={changeQuitFortiClientOnExit}
+              label="Stop FortiClient when quitting this application"
+            />
+            <Checkbox
+              checked={status.auto_start_forticlient}
+              disabled={busy}
+              onChange={changeAutoStartFortiClient}
+              label="Automatically start FortiClient when this application starts"
+            />
+          </Stack>
         </Grid.Col>
         <Grid.Col span={12}>
           <div className={classes.buttonGroup}>

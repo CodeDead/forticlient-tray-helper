@@ -112,3 +112,17 @@ pub async fn remove_fortitray_launcher(app: AppHandle) -> Result<(), String> {
 pub async fn set_quit_forticlient_on_exit(value: bool) -> Result<(), String> {
     run_blocking(move || settings::set_quit_forticlient_on_exit(value)).await
 }
+
+/// Set whether FortiClient should be started when the application starts.
+///
+/// # Arguments
+///
+/// - `value` - Whether FortiClient should be started on startup
+///
+/// # Returns
+///
+/// A Result containing an empty OK or an error message
+#[tauri::command]
+pub async fn set_auto_start_forticlient(value: bool) -> Result<(), String> {
+    run_blocking(move || settings::set_auto_start_forticlient(value)).await
+}

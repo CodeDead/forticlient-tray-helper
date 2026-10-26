@@ -206,6 +206,7 @@ pub(crate) struct ForticlientStatus {
     tray_launcher_running: bool,
     tray_autostart_enabled: bool,
     quit_forticlient_on_exit: bool,
+    auto_start_forticlient: bool,
 }
 
 /// Collect the current status of the FortiClient service, GUI and tray
@@ -223,6 +224,7 @@ pub(crate) fn build_status() -> Result<ForticlientStatus, String> {
         tray_launcher_running: tray_launcher_active(),
         tray_autostart_enabled: tray_autostart_enabled(),
         quit_forticlient_on_exit: crate::settings::quit_forticlient_on_exit(),
+        auto_start_forticlient: crate::settings::auto_start_forticlient(),
     })
 }
 
@@ -366,9 +368,8 @@ pub(crate) fn start_forticlient_sync() -> Result<(), String> {
     let _guard = op_guard();
     // Resolve the CLI before prompting for root or waiting on the daemon so
     // a missing installation fails fast with a clear error
-    let cli = resolve_cli().ok_or_else(|| {
-        format!("FortiClient CLI not found at {FORTICLIENT_CLI} or on PATH")
-    })?;
+    let cli = resolve_cli()
+        .ok_or_else(|| format!("FortiClient CLI not found at {FORTICLIENT_CLI} or on PATH"))?;
     if !service_is_active()? {
         run_pkexec(&["systemctl", "start", FORTICLIENT_SERVICE])?;
     }
@@ -407,9 +408,7 @@ pub(crate) fn disable_forticlient_service_sync() -> Result<(), String> {
     let _guard = op_guard();
     // Stop and disable in a single pkexec invocation so the user only
     // gets one polkit prompt
-    let script = format!(
-        "set -e\nsystemctl disable {FORTICLIENT_SERVICE}"
-    );
+    let script = format!("set -e\nsystemctl disable {FORTICLIENT_SERVICE}");
     run_pkexec(&["/bin/sh", "-c", script.as_str()])
 }
 
@@ -423,9 +422,7 @@ pub(crate) fn enable_forticlient_service_sync() -> Result<(), String> {
     let _guard = op_guard();
     // Enable and start in a single pkexec invocation so the user only
     // gets one polkit prompt
-    let script = format!(
-        "set -e\nsystemctl enable {FORTICLIENT_SERVICE}"
-    );
+    let script = format!("set -e\nsystemctl enable {FORTICLIENT_SERVICE}");
     run_pkexec(&["/bin/sh", "-c", script.as_str()])
 }
 

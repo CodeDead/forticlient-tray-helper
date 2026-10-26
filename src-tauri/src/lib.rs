@@ -3,12 +3,12 @@ mod forticlient;
 mod settings;
 mod tray;
 
-use tauri::tray::TrayIconBuilder;
+use tauri::{Emitter, tray::TrayIconBuilder};
 
 use commands::{
     disable_forticlient_service, enable_forticlient_service, enable_fortitray_launcher,
-    forticlient_status, remove_fortitray_launcher, set_quit_forticlient_on_exit, start_forticlient,
-    stop_forticlient,
+    forticlient_status, remove_fortitray_launcher, set_auto_start_forticlient,
+    set_quit_forticlient_on_exit, start_forticlient, stop_forticlient,
 };
 use tray::{
     TRAY_ID, handle_tray_icon_event, handle_tray_menu_event, refresh_tray_menu, show_window,
@@ -33,6 +33,7 @@ pub fn run() {
             enable_fortitray_launcher,
             remove_fortitray_launcher,
             set_quit_forticlient_on_exit,
+            set_auto_start_forticlient,
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -48,6 +49,23 @@ pub fn run() {
                 .on_tray_icon_event(handle_tray_icon_event)
                 .build(app)?;
             refresh_tray_menu(app.handle())?;
+
+            // Start FortiClient in the background when the user enabled it.
+            // Running this on the main thread would delay the tray and UI
+            // while waiting for a polkit prompt or the daemon.
+            if settings::auto_start_forticlient() {
+                let app_handle = app.handle().clone();
+                std::thread::spawn(move || {
+                    if let Err(err) = forticlient::start_forticlient_sync() {
+                        eprintln!("Failed to start FortiClient automatically: {err}");
+                        let _ = app_handle.emit(
+                            "tray-error",
+                            format!("Failed to start FortiClient automatically: {err}"),
+                        );
+                    }
+                    let _ = refresh_tray_menu(&app_handle);
+                });
+            }
 
             // Fallback refresh for changes made outside the app (e.g. a
             // manual systemctl call). App-driven changes refresh the tray
